@@ -1,6 +1,12 @@
-Console-based banking system that can:
-1.Create accounts
-2.Handle deposits & withdrawals
-3.Transfer money between accounts
-4.Record transactions
-5.Never allow invalid money states
+Bank Account Simulator
+
+Core Java console-based banking simulator project.
+
+## Purpose
+This project is built to practice:
+- Core Java
+- Object-Oriented Programming
+- Clean code and Git discipline
+
+No frameworks. No Spring. Console-based only.
+
