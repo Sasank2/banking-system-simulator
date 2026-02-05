@@ -32,5 +32,13 @@ public class Account {
 	public AccountType getAccountType() {
 		return accountType;
 	}
+	
+	public void credit(BigDecimal amount) {
+		this.balance = this.balance.add(amount);
+	}
+	
+	public void debit(BigDecimal amount) {
+		this.balance = this.balance.subtract(amount);
+	}
 
 }
