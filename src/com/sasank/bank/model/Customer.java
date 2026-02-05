@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Customer {
 	
-	private String customerId;
-	private String name;
-	private List<Account> accounts;
+	private final String customerId;
+	private final String name;
+	private final List<Account> accounts;
 	
 	public Customer(String customerId, String name) {
 		this.customerId = customerId;
@@ -15,4 +15,12 @@ public class Customer {
 		this.accounts = new ArrayList<>();
 	}
 	
+	public String getCustomerId() {
+		return customerId;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	 
 }
