@@ -47,6 +47,25 @@ public class BankingService {
 	}
 	
 	public void transfer(Account sourceAccount,Account targetAccount, BigDecimal amount) {
+		if(sourceAccount == null || targetAccount ==null ) {
+	        throw new IllegalArgumentException("Account cannot be null");
+	    }
+		if(sourceAccount == targetAccount) {
+			throw new IllegalArgumentException("Source account and target account cannot be same");
+		}
+		
+		if(amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("Invalid amount");
+		}
+		if(sourceAccount.getBalance().compareTo(amount) < 0) {
+			throw new IllegalArgumentException("Insufficient Funds");
+		}
+		sourceAccount.debit(amount);
+		targetAccount.credit(amount);
+		Transaction transaction = new Transaction(TransactionType.TRANSFER, amount, sourceAccount, targetAccount);
+		sourceAccount.addTransaction(transaction);
+		targetAccount.addTransaction(transaction);
+		
 		
 	}
 }
