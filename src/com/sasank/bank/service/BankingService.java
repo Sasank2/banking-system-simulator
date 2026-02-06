@@ -17,6 +17,10 @@ public class BankingService {
 	}
 	
 	public void deposit(Account account, BigDecimal amount) {
+		if (account == null) {
+	        throw new IllegalArgumentException("Account cannot be null");
+	    }
+		
 		if(amount == null || amount.compareTo(BigDecimal.ZERO)<=0 ) {
 			throw new IllegalArgumentException("Invalid amount");
 		}
@@ -27,7 +31,19 @@ public class BankingService {
 	}
 	
 	public void withdraw(Account account, BigDecimal amount) {
+		if (account == null) {
+	        throw new IllegalArgumentException("Account cannot be null");
+	    }
 		
+		if(amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("Invalid amount");
+		}
+		if(account.getBalance().compareTo(amount) < 0) {
+			throw new IllegalArgumentException("Insufficient Funds");
+		}
+		account.debit(amount);
+		Transaction transaction = new Transaction(TransactionType.WITHDRAWAL, amount, null, account);
+		  account.addTransaction(transaction);
 	}
 	
 	public void transfer(Account sourceAccount,Account targetAccount, BigDecimal amount) {
