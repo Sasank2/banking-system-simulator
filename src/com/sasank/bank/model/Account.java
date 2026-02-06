@@ -1,6 +1,8 @@
 package com.sasank.bank.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Account {
 	
@@ -15,6 +17,8 @@ public class Account {
 		this.balance = balance;
 		this.accountType = accountType;
 	}
+	
+	public final List<Transaction> transactions = new ArrayList<>();
 	
 	public String getAccountNumber() {
 		
@@ -40,5 +44,11 @@ public class Account {
 	public void debit(BigDecimal amount) {
 		this.balance = this.balance.subtract(amount);
 	}
+	
+	public void addTransaction(Transaction transaction) {
+		transactions.add(transaction);
+	}
+
+	
 
 }
