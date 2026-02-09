@@ -2,6 +2,7 @@ package com.sasank.bank.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Account {
@@ -36,7 +37,7 @@ public class Account {
 	public AccountType getAccountType() {
 		return accountType;
 	}
-	
+		
 	public void credit(BigDecimal amount) {
 		this.balance = this.balance.add(amount);
 	}
@@ -47,6 +48,10 @@ public class Account {
 	
 	public void addTransaction(Transaction transaction) {
 		transactions.add(transaction);
+	}
+	
+	public List<Transaction> getTransaction() {	
+		return Collections.unmodifiableList(transactions);
 	}
 
 	
