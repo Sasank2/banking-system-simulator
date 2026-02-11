@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -14,17 +15,269 @@ import com.sasank.bank.model.AccountType;
 import com.sasank.bank.model.ComparisionType;
 import com.sasank.bank.model.Customer;
 import com.sasank.bank.model.Direction;
+import com.sasank.bank.model.Transaction;
 import com.sasank.bank.model.TransactionType;
 import com.sasank.bank.service.BankingService;
 
 public class ConsoleApp {
 	
-	BankingService service;
-	MainApp app;
+	private final BankingService service;
+	private final Map<String,Account> accounts = new HashMap<>();
 	Scanner sc = new Scanner(System.in);
 	
-	private final Map<String,Account> accounts = new HashMap<>();
+	 public ConsoleApp(BankingService service) {
+	        this.service = service;
+	    }
+		public void mainMenu() {
+			boolean running = true;
+			
+			while(running) {
+				printMainMenu();
+				System.out.println("Enter your choice");
+				int choice;
+				try {
+					choice = sc.nextInt();
+				 } catch (InputMismatchException e) {
+			            System.out.println("Invalid input. Please enter a number.");
+			            sc.nextLine(); 
+			            continue;
+				 }
+				sc.nextLine();
+				
+				switch(choice) {
+				case 1 :
+					openAccountHandler();
+					break;
+				case 2 :
+					depositHandler();
+					break;
+				case 3 :
+					withdrawHandler();
+					break;
+				case 4 :
+					transferHandler();
+					break;
+				case 5 :
+					transactionHandler();
+					break;
+				case 6 :
+					running = false;
+					System.out.println("Thanks for using");
+					break;
+				
+				}
+			}
+		}
+	private void printMainMenu() {
 
+	    System.out.println();
+	    System.out.println("======================================");
+		System.out.println("          BANKING SYSTEM MENU         ");
+	    System.out.println("======================================");
+	    System.out.println("1. Open Account");
+	    System.out.println("2. Deposit");
+		System.out.println("3. Withdraw");
+		System.out.println("4. Transfer");
+		System.out.println("5. View Account Statement");
+		System.out.println("6. Exit");
+		System.out.println("======================================");
+		}
+	
+	public void accountSatement(Account account) {
+
+	    System.out.println("=================================================");
+	    System.out.println("Account Number : " + account.getAccountNumber());
+	    System.out.println("Holder         : " + account.getAccountHolderName());
+	    System.out.println("Type           : " + account.getAccountType());
+	    System.out.println("Balance        : " + account.getBalance());
+	    System.out.println("=================================================");
+
+	    List<Transaction> transactions = account.getTransaction();
+
+	    if (transactions.isEmpty()) {
+	        System.out.println("No transactions found for this account.");
+	        return;
+	    }
+
+	    BigDecimal totalIn = BigDecimal.ZERO;
+	    BigDecimal totalOut = BigDecimal.ZERO;
+
+	    DateTimeFormatter formatter =
+	            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+	    for (Transaction t : transactions) {
+
+	        String direction;
+	        if (account == t.getTargetAccount()) {
+	            direction = "IN";
+	            totalIn = totalIn.add(t.getAmount());
+	        } else {
+	            direction = "OUT";
+	            totalOut = totalOut.add(t.getAmount());
+	        }
+
+	        System.out.println("-------------------------------------------------");
+	        System.out.println("Type       : " + t.getTransactionType());
+	        System.out.println("Amount     : " + t.getAmount());
+	        System.out.println("Direction  : " + direction);
+	        System.out.println("Time       : " + t.getTimeStamp().format(formatter));
+	    }
+
+	    System.out.println("-------------------------------------------------");
+	    System.out.println("Total Transactions : " + transactions.size());
+	    System.out.println("Total IN           : " + totalIn);
+	    System.out.println("Total OUT          : " + totalOut);
+	    System.out.println("-------------------------------------------------");
+	}
+	
+	public void transactionByType(Account account, TransactionType type) {
+		
+		System.out.println(
+				"Account number : " + account.getAccountNumber() +" | " +
+				"AccoutHolder name : " + account.getAccountHolderName()+" | " +
+				"Account type : "+ account.getAccountType()+" | " +
+				"Account Balance : " + account.getBalance());
+		
+		List<Transaction> trade = account.getTransaction();
+		if(trade.isEmpty()) {
+			System.out.println("No transactions");
+			return;
+		}
+		boolean foundTransaction = false;
+		for(Transaction t : trade) {
+			if(t.getTransactionType() == type) {
+				foundTransaction = true;
+				System.out.println(
+			            t.getTransactionType() + " | " +
+			            t.getAmount() + " | " +
+			            t.getTimeStamp() + " | "+
+			            t.getTargetAccount()
+			        );
+			}
+		}
+		if(!foundTransaction) {
+			System.out.println("No deposit transactions found");
+		}
+			
+		
+	}
+	
+	public void transactionByDirection(Account account, Direction direction ) {
+		System.out.println(
+				"Account number : " + account.getAccountNumber() +" | " +
+				"AccoutHolder name : " + account.getAccountHolderName()+" | " +
+				"Account type : "+ account.getAccountType()+" | " +
+				"Account Balance : " + account.getBalance());
+		
+		List<Transaction> trade = account.getTransaction();
+		if(trade.isEmpty()) {
+			System.out.println("No transactions");
+			return;
+		}
+		
+		boolean foundTransaction = false;
+		for(Transaction t : trade) {
+			if(account == t.getSourceAccount() && direction == Direction.OUT){
+				foundTransaction = true;
+				System.out.println(
+						"OUT | "+
+			            t.getTransactionType() + " | " +
+			            t.getAmount() + " | " +
+			            t.getTimeStamp()
+			        );
+			}else if(account == t.getTargetAccount() && direction == Direction.IN){
+				foundTransaction = true;
+				System.out.println(
+						"IN | "+
+			            t.getTransactionType() + " | " +
+			            t.getAmount() + " | " +
+			            t.getTimeStamp()
+			        );
+			}
+		}
+		if(!foundTransaction) {
+			System.out.println("No deposit transactions found");
+		}
+	}
+	
+	public void transactionByAmount(Account account, BigDecimal amount, ComparisionType type ) {
+		System.out.println(
+				"Account number : " + account.getAccountNumber() +" | " +
+				"AccoutHolder name : " + account.getAccountHolderName()+" | " +
+				"Account type : "+ account.getAccountType()+" | " +
+				"Account Balance : " + account.getBalance());
+		
+		List<Transaction> trade = account.getTransaction();
+		if(trade.isEmpty()) {
+			System.out.println("No transactions");
+			return;
+		}
+		
+		boolean foundTransaction = false;
+		for(Transaction t : trade) {
+			if(t.getAmount().compareTo(amount)>=0 && type == ComparisionType.GREATER_THAN) {
+				foundTransaction = true;
+				System.out.println(
+						t.getTransactionType() + " | " +
+			            t.getAmount() + " | " +
+			            t.getTimeStamp()
+			            );
+			}
+			if(t.getAmount().compareTo(amount)<=0 && type == ComparisionType.LESS_THAN) {
+				foundTransaction = true;
+				System.out.println(
+						t.getTransactionType() + " | " +
+			            t.getAmount() + " | " +
+			            t.getTimeStamp()
+			            );
+			}
+		}
+		if(!foundTransaction) {
+			System.out.println("No transactions found");
+		}
+	}
+	
+	public void transactionByTime(Account account,LocalDateTime start,  LocalDateTime end) {
+		if (start == null || end == null) {
+	        System.out.println("Invalid time range.");
+	        return;
+	    }
+
+	    if (start.isAfter(end)) {
+	        System.out.println("Start time cannot be after end time.");
+	        return;
+	    }
+
+		System.out.println(
+				"Account number : " + account.getAccountNumber() +" | " +
+				"AccoutHolder name : " + account.getAccountHolderName()+" | " +
+				"Account type : "+ account.getAccountType()+" | " +
+				"Account Balance : " + account.getBalance());
+		
+		List<Transaction> trade = account.getTransaction();
+		if(trade.isEmpty()) {
+			System.out.println("No transactions");
+			return;
+		}
+		
+		boolean foundTransaction = false;
+		for(Transaction t : trade) {
+			LocalDateTime ts = t.getTimeStamp();
+			boolean inRange = (ts.isAfter(start) || ts.isEqual(start)) &&
+					(ts.isBefore(end) || ts.isEqual(end));
+			if(inRange) {
+				foundTransaction = true;
+				System.out.println(
+						t.getTransactionType() + " | " +
+			            t.getAmount() + " | " +
+			            t.getTimeStamp()
+			            );
+			}
+		}
+		if(!foundTransaction) {
+			System.out.println("No transactions found between these time ranges");
+		}
+	}
 	public void openAccountHandler() {
 		System.out.println(" Enter customer name : ");
 		String name = sc.nextLine();
@@ -98,6 +351,7 @@ public class ConsoleApp {
 	
 	public void transactionHandler() {
 		Account account = getValidAccount();
+		if (account == null) return;
 		System.out.println("========Account Statement========" + '\n'+
 				"1. All Transactions\n" +
 	            "2. Transaction Type\n" +
@@ -119,7 +373,7 @@ public class ConsoleApp {
 		
 		switch (choice) {
 		case 1:
-			app.accountSatement(account);
+			accountSatement(account);
 			break;
 			
 		case 2:
@@ -129,7 +383,7 @@ public class ConsoleApp {
 			try {
 				TransactionType transactionType = TransactionType.valueOf(type.toUpperCase());
 				System.out.println("Selected : " + transactionType);
-				app.transactionByType(account, transactionType);
+				transactionByType(account, transactionType);
 			}catch (IllegalArgumentException e) {
 			    System.out.println("Invalid type.");
 			    return;
@@ -143,7 +397,7 @@ public class ConsoleApp {
 			try {
 				Direction d = Direction.valueOf(direction.toUpperCase());
 				System.out.println("Selected :" + d);
-				app.transactionByDirection(account, d);
+				transactionByDirection(account, d);
 			}catch (IllegalArgumentException e) {
 			    System.out.println("Invalid direction.");
 			    return;
@@ -168,7 +422,7 @@ public class ConsoleApp {
 			try {
 				ComparisionType cType = ComparisionType.valueOf(comparissionType.toUpperCase());
 				System.out.println("Selected : " + cType);
-				app.transactionByAmount(account, amount, cType);
+				transactionByAmount(account, amount, cType);
 			}catch (IllegalArgumentException e) {
 			    System.out.println("Invalid type.");
 			    return;
@@ -192,7 +446,7 @@ public class ConsoleApp {
 	                LocalDateTime end =
 	                        LocalDateTime.parse(endInput, formatter);
 
-	                app.transactionByTime(account, begin, end);
+	                transactionByTime(account, begin, end);
 
 	            } catch (DateTimeParseException e) {
 	                System.out.println("Invalid date format.");
@@ -212,7 +466,6 @@ public class ConsoleApp {
 	private Account getValidAccount() {
 		System.out.println(" Enter AccountNumber : ");
 		String accountNumber = sc.nextLine();
-		
 		Account account = accounts.get(accountNumber);
 		
 		if(account == null) {
