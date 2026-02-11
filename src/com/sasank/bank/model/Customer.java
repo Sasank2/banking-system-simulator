@@ -22,5 +22,9 @@ public class Customer {
 	public String getName() {
 		return name;
 	}
+
+	public void addAccount(Account account) {
+		accounts.add(account);
+	}
 	 
 }

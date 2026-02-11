@@ -10,10 +10,22 @@ import com.sasank.bank.model.TransactionType;
 
 public class BankingService {
 	
+	private static int accountCounter = 10000;
+	
 
 	public Account openAccount(Customer customer, AccountType accountType, BigDecimal initialBalance) {
 		
-		return null;
+		if(initialBalance == null || initialBalance.compareTo(BigDecimal.ZERO) <0) {
+			throw new IllegalArgumentException("Invalid Opening Balance");			
+		}
+		String accountNumber = "ACC" + (++accountCounter);
+		Account account = new Account(
+				accountNumber,
+				customer.getName(),
+				initialBalance,
+				accountType
+				);
+		return account;
 	}
 	
 	public void deposit(Account account, BigDecimal amount) {
